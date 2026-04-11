@@ -1,0 +1,80 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\UrlRewriteGenerator\Console\Command;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResourceConnection;
+use Byte8\UrlRewriteGenerator\Model\GetProductEntityDataInterface;
+use Byte8\UrlRewriteGenerator\Model\UrlRewriteInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+
+/**
+ * @inheritDoc
+ */
+class GenerateProductUrl extends AbstractGenerator
+{
+    private const COMMAND_NAME = 'url:generate:product';
+
+    /**
+     * @param GetProductEntityDataInterface $getProductEntityData
+     * @param ResourceConnection $resourceConnection
+     * @param ScopeConfigInterface $scopeConfig
+     * @param UrlRewriteInterface $urlRewrite
+     * @param string|null $name
+     */
+    public function __construct(
+        private GetProductEntityDataInterface $getProductEntityData,
+        ResourceConnection $resourceConnection,
+        ScopeConfigInterface $scopeConfig,
+        UrlRewriteInterface $urlRewrite,
+        ?string $name = null
+    ) {
+        parent::__construct($resourceConnection, $scopeConfig, $urlRewrite, $name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function configure(): void
+    {
+        $this->setName(self::COMMAND_NAME)
+            ->setDescription('Generates URL rewrites for Product entity.')
+            ->setDefinition([
+                new InputOption(
+                    self::ID_FILTER,
+                    '-i',
+                    InputOption::VALUE_REQUIRED,
+                    'Product entity ID filter'
+                ),
+                new InputOption(
+                    self::STORE_ID_ARG,
+                    '-s',
+                    InputOption::VALUE_REQUIRED,
+                    'Store ID argument'
+                )
+            ]);
+        parent::configure();
+    }
+
+    /**
+     * @inheritDoc
+     * @throws \Exception
+     */
+    protected function getAllIds(InputInterface $input, ?int $storeId = null): array
+    {
+        if ($idFilter = $input->getOption(self::ID_FILTER)) {
+            $entityIds = explode(',', str_replace(' ', '', $idFilter));
+        } else {
+            $entityIds = [];
+        }
+
+        return $this->getProductEntityData->execute($entityIds, $storeId);
+    }
+}

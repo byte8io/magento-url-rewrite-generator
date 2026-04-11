@@ -1,0 +1,53 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\UrlRewriteGenerator\Model\UrlRewriteImport;
+
+use Magento\Framework\Exception\LocalizedException;
+use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
+use Byte8\UrlRewriteGenerator\Model\UrlRewriteImportInterface;
+
+/**
+ * Class Report
+ * used to add report to CSV file source
+ */
+class Report
+{
+    public const REPORT_FILENAME_TEMPLATE = 'operation_%d.csv';
+
+    /**
+     * @param FileSystem\Pool $filePool
+     */
+    public function __construct(private FileSystem\Pool $filePool)
+    {}
+
+    /**
+     * @param int $operationId
+     * @param array $rows
+     * @return void
+     * @throws LocalizedException
+     */
+    public function save(int $operationId, array $rows = []): void
+    {
+        if (!$file = $this->filePool->get(sprintf(self::REPORT_FILENAME_TEMPLATE, $operationId))) {
+            return;
+        }
+
+        $file->addRow([
+            UrlRewrite::REQUEST_PATH,
+            UrlRewrite::TARGET_PATH,
+            UrlRewrite::REDIRECT_TYPE,
+            UrlRewrite::STORE_ID,
+            UrlRewriteImportInterface::COLUMN_MESSAGES
+        ]);
+
+        foreach ($rows as $row) {
+            $file->addRow($row);
+        }
+    }
+}

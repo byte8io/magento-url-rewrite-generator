@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Global interfaces -->
+    <preference for="Byte8\UrlRewriteGenerator\Model\GetProductEntityDataInterface" type="Byte8\UrlRewriteGenerator\Model\GetProductEntityData" />
+    <!-- CLI -->
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="url_rewrite_delete" xsi:type="object">Byte8\UrlRewriteGenerator\Console\Command\DeleteUrlRewrite</item>
+                <item name="url_rewrite_generate_category" xsi:type="object">Byte8\UrlRewriteGenerator\Console\Command\GenerateCategoryUrl</item>
+                <item name="url_rewrite_generate__product" xsi:type="object">Byte8\UrlRewriteGenerator\Console\Command\GenerateProductUrl</item>
+                <item name="url_rewrite_generate_product_url_key" xsi:type="object">Byte8\UrlRewriteGenerator\Console\Command\GenerateProductUrlKey</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Byte8\UrlRewriteGenerator\Console\Command\GenerateCategoryUrl">
+        <arguments>
+            <argument name="urlRewrite" xsi:type="object">Byte8\UrlRewriteGenerator\Model\CategoryUrlRewriteGenerator</argument>
+        </arguments>
+    </type>
+    <type name="Byte8\UrlRewriteGenerator\Console\Command\GenerateProductUrl">
+        <arguments>
+            <argument name="urlRewrite" xsi:type="object">Byte8\UrlRewriteGenerator\Model\ProductUrlRewriteGenerator</argument>
+        </arguments>
+    </type>
+    <!-- URL Rewrite Import -->
+    <preference for="Byte8\UrlRewriteGenerator\Model\UrlRewriteImportInterface" type="Byte8\UrlRewriteGenerator\Model\UrlRewriteImport" />
+    <type name="Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\FileSystem\Uploader">
+        <arguments>
+            <argument name="allowedExtensions" xsi:type="array">
+                <item name="csv" xsi:type="string">csv</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\MessageQueue\MergerFactory">
+        <arguments>
+            <argument name="mergers" xsi:type="array">
+                <item name="url.rewrite.import.processor" xsi:type="string">Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Mq\Merger</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="import" xsi:type="array">
+                    <item name="request_path" xsi:type="object">Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Validator\RequestPath</item>
+                    <item name="target_path" xsi:type="object">Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Validator\TargetPath</item>
+                    <item name="redirect_type" xsi:type="object">Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Validator\RedirectType</item>
+                    <item name="store_id" xsi:type="object">Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Validator\StoreId</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- Logger -->
+    <virtualType name="Byte8\UrlRewriteGenerator\VirtualStreamHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">var/log/url-rewrite-generator.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Byte8\UrlRewriteGenerator\VirtualRotationStreamHandler" type="Byte8\Core\Logger\Handler\RotationSteamHandler">
+        <arguments>
+            <argument name="fileName" xsi:type="string">var/log/url-rewrites.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Byte8\UrlRewriteGenerator\VirtualLogger" type="Byte8\Core\Logger\LogProcessor">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">Byte8\UrlRewriteGenerator\VirtualStreamHandler</item>
+                <item name="rotation_debug" xsi:type="object">Byte8\UrlRewriteGenerator\VirtualRotationStreamHandler</item>
+                <item name="mail" xsi:type="object">Byte8\Core\Logger\Handler\MailStreamHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Byte8\UrlRewriteGenerator\Cron\Backend\ProductUrlGenerator">
+        <arguments>
+            <argument name="logger" xsi:type="object">Byte8\UrlRewriteGenerator\VirtualLogger</argument>
+            <argument name="urlRewrite" xsi:type="object">Byte8\UrlRewriteGenerator\Model\ProductUrlRewriteGenerator</argument>
+        </arguments>
+    </type>
+    <type name="Byte8\UrlRewriteGenerator\Model\UrlRewriteImport">
+        <arguments>
+            <argument name="logger" xsi:type="object">Byte8\UrlRewriteGenerator\VirtualLogger</argument>
+            <argument name="urlPersist" xsi:type="object">Byte8\UrlRewriteGenerator\Model\Storage\UrlRewriteDbStorage</argument>
+        </arguments>
+    </type>
+    <type name="Byte8\UrlRewriteGenerator\Model\UrlRewriteImport\Mq\Consumer">
+        <arguments>
+            <argument name="logger" xsi:type="object">Byte8\UrlRewriteGenerator\VirtualLogger</argument>
+        </arguments>
+    </type>
+</config>

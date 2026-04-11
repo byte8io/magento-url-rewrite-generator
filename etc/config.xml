@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <url_rewrite_generator>
+            <product_entity_config>
+                <include_invisible_product>0</include_invisible_product>
+                <enable_schedule>0</enable_schedule>
+                <cron_frequency>15 3 * * *</cron_frequency>
+                <process_batch_size>100</process_batch_size>
+            </product_entity_config>
+        </url_rewrite_generator>
+    </default>
+</config>

@@ -1,0 +1,116 @@
+# URL Rewrite Regeneration extension for Magento 2
+The core purpose of this extension is to provide an easy way of regenerating URL rewrites for Magento 2 using CLI.
+
+## Features
+- Generate URL rewrites for Category
+- Generate URL rewrites for Product
+- Generate URL for all active stores
+- Delete URL rewrites by entity or store criteria
+- Compatible Search Engine Optimization
+- Compatible with product URLs that use category paths
+- Compatible with both Category and Product URL Suffix
+- Create permanent redirects for URLs if URL Key Changed
+
+## Compatibility
+- Open Source >= 2.4.0
+- Commerce On Prem (EE) >= 2.4.0
+- Commerce On Cloud (ECE) >= 2.4.0
+
+## Installation
+Using composer
+
+```
+composer require byte8ltd/module-url-rewrite-generator
+```
+
+## Post Installation
+
+```sh
+# Enable the module
+bin/magento module:enable Byte8_UrlRewriteGenerator
+```
+
+In production mode:
+```sh
+# compile & generate static files
+bin/magento deploy:mode:set production
+```
+
+In development mode:
+```
+bin/magento setup:di:compile
+```
+
+## Usage
+
+### Generate URL rewrites for Category
+
+Command options:
+
+```
+bin/magento url_rewrite:category:generate [id|-i]
+```
+
+Example:
+
+```sh
+# Regenerate URL rewrites for all categories:
+bin/magento url_rewrite:category:generate
+
+# Generate URL rewrites for particular categories with IDs 25 & 26:
+bin/magento url_rewrite:category:generate -i 25,26
+```
+
+### Generate URL rewrites for Product
+
+> Please note, products with visibility *__Not Visible Individually__* [id: 1] are excluded from URL rewrite generation.
+
+Command options:
+
+``
+bin/magento url_rewrite:product:generate [id|-i]
+``
+
+```sh
+# Regenerate URL rewrites for all products:
+bin/magento url_rewrite:product:generate
+
+# Generate URL rewrites for particular products with IDs 25 & 26:
+bin/magento url_rewrite:product:generate -i 25,26
+```
+
+### Delete URL rewrites
+
+Command options:
+
+``
+bin/magento url_rewrite:delete [entity|-e || store|-s]
+``
+
+```sh
+# Delete URL rewrites for entity: product with store IDs: 1 and 2
+bin/magento url_rewrite:delete -e product -s 1,2
+
+# Delete URL rewrites for product and category entities with store IDs 1, 2 and 3
+bin/magento url_rewrite:delete -e product,category -s 1,2,3
+```
+
+## Support
+Byte8 Ltd <br />
+support@byte8.io
+
+## License
+Each source file included in this package is licensed under OSL 3.0.
+
+[Open Software License (OSL 3.0)](https://opensource.org/licenses/osl-3.0.php).
+Please see `LICENSE.txt` for full details of the OSL 3.0 license.
+
+## Thanks for dropping by
+
+<p align="center">
+    <a href="https://byte8.io" target="_blank">
+        <img src="https://byte8.io/pub/media/banner/logo.svg" width="200" alt="Byte8 Ltd" />
+    </a>
+    <br />
+    <a href="https://byte8.io/" target="_blank">https://byte8.io/</a>
+</p>
