@@ -10,7 +10,7 @@
         <section id="url_rewrite_generator" translate="label" type="text" sortOrder="999" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>URL Rewrite Generator</label>
-            <tab>byte8_tab</tab>
+            <tab>byte8</tab>
             <resource>Byte8_UrlRewriteGenerator::url_rewrite_generator_config</resource>
             <group id="product_entity_config" translate="label" type="text" sortOrder="1" showInDefault="1">
                 <label>Product Entity Settings</label>
