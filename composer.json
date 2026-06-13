@@ -2,7 +2,7 @@
     "name": "byte8/module-url-rewrite-generator",
     "description": "URL Rewrite Generator Module.",
     "require": {
-        "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0",
+        "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0||~8.5.0",
         "magento/module-url-rewrite": "^101|^102",
         "byte8/module-core": "*"
     },
