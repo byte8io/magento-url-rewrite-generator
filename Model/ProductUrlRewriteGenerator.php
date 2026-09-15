@@ -28,8 +28,8 @@ use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewriteFactory;
 use Byte8\Core\Framework\DataStorageInterface;
 use Byte8\Core\Framework\DataStorageInterfaceFactory;
-use Byte8\Core\Framework\MessageStorageInterface;
-use Byte8\Core\Framework\MessageStorageFactory;
+use Byte8\Core\Framework\MessageCollectorInterface;
+use Byte8\Core\Framework\MessageCollectorInterfaceFactory;
 use Byte8\Core\Model\Source\StatusInterface;
 use Byte8\Core\Model\Utils\GetEntityMetadataInterface;
 use function implode;
@@ -45,9 +45,9 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
     private DataStorageInterface $responseStorage;
 
     /**
-     * @var MessageStorageInterface
+     * @var MessageCollectorInterface
      */
-    private MessageStorageInterface $messageStorage;
+    private MessageCollectorInterface $messageCollector;
 
     /**
      * @var array
@@ -60,7 +60,7 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
      * @param GetEntityMetadataInterface $getEntityMetadata
      * @param GetProductEntityDataInterface $getProductEntityData
      * @param MergeDataProviderFactory $mergeDataProviderFactory
-     * @param MessageStorageFactory $messageStorageFactory
+     * @param MessageCollectorInterfaceFactory $messageCollectorFactory
      * @param ProductFactory $productFactory
      * @param ProductResource $productResource
      * @param ProductUrlPathGenerator $productUrlPathGenerator
@@ -75,7 +75,7 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
         private GetEntityMetadataInterface $getEntityMetadata,
         private GetProductEntityDataInterface $getProductEntityData,
         private MergeDataProviderFactory $mergeUrlDataProviderFactory,
-        MessageStorageFactory $messageStorageFactory,
+        MessageCollectorInterfaceFactory $messageCollectorFactory,
         private ProductFactory $productFactory,
         private ProductResource $productResource,
         private ProductUrlPathGenerator $productUrlPathGenerator,
@@ -85,7 +85,7 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
         private UrlPersistInterface $urlPersist
     ) {
         $this->responseStorage = $dataStorageFactory->create();
-        $this->messageStorage = $messageStorageFactory->create();
+        $this->messageCollector = $messageCollectorFactory->create();
     }
 
     /**
@@ -99,9 +99,9 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
     /**
      * @inheritDoc
      */
-    public function getMessageStorage(): MessageStorageInterface
+    public function getMessageCollector(): MessageCollectorInterface
     {
-        return $this->messageStorage;
+        return $this->messageCollector;
     }
 
     /**
@@ -137,23 +137,24 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
             try {
                 $this->generate($productId, $storeIds, $categoryIds);
                 $this->getResponseStorage()->addData($productId);
-                $this->getMessageStorage()->addData(
+                $this->getMessageCollector()->addMessage(
+                    $productId,
                     __(
                         'Url rewrites have been generated. [Product: %1, Store: %2]',
                         $productId,
                         implode(', ', $storeIds)
                     ),
-                    $productId
+                    StatusInterface::SUCCESS
                 );
             } catch (\Exception $e) {
-                $this->getMessageStorage()->addData(
+                $this->getMessageCollector()->addMessage(
+                    $productId,
                     __(
                         'Could not generate URL rewrites. [Product: %1, Store: %2, Error: %3]',
                         $productId,
                         implode(', ', $storeIds),
                         $e->getMessage()
                     ),
-                    $productId,
                     StatusInterface::ERROR
                 );
             }
@@ -167,7 +168,7 @@ class ProductUrlRewriteGenerator implements UrlRewriteInterface
     {
         $this->request = [];
         $this->responseStorage->resetData();
-        $this->messageStorage->resetData();
+        $this->messageCollector->reset();
     }
 
     /**

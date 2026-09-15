@@ -19,9 +19,9 @@ use Magento\UrlRewrite\Model\MergeDataProviderFactory;
 use Magento\UrlRewrite\Model\UrlPersistInterface;
 use Byte8\Core\Framework\DataStorageInterface;
 use Byte8\Core\Framework\DataStorageInterfaceFactory;
-use Byte8\Core\Framework\MessageStorageInterface;
-use Byte8\Core\Framework\MessageStorageFactory;
-use Byte8\Core\Model\Source\Status;
+use Byte8\Core\Framework\MessageCollectorInterface;
+use Byte8\Core\Framework\MessageCollectorInterfaceFactory;
+use Byte8\Core\Model\Source\StatusInterface;
 use function implode;
 
 /**
@@ -35,9 +35,9 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
     private DataStorageInterface $responseStorage;
 
     /**
-     * @var MessageStorageInterface
+     * @var MessageCollectorInterface
      */
-    private MessageStorageInterface $messageStorage;
+    private MessageCollectorInterface $messageCollector;
 
     /**
      * @var array
@@ -49,7 +49,7 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
      * @param CatalogCategoryUrlRewriteGenerator $categoryUrlRewriteGenerator
      * @param DataStorageInterfaceFactory $dataStorageFactory
      * @param MergeDataProviderFactory $mergeDataProviderFactory
-     * @param MessageStorageFactory $messageStorageFactory
+     * @param MessageCollectorInterfaceFactory $messageCollectorFactory
      * @param UrlPersistInterface $urlPersist
      */
     public function __construct(
@@ -57,11 +57,11 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
         private CatalogCategoryUrlRewriteGenerator $categoryUrlRewriteGenerator,
         DataStorageInterfaceFactory $dataStorageFactory,
         private MergeDataProviderFactory $mergeUrlDataProviderFactory,
-        MessageStorageFactory $messageStorageFactory,
+        MessageCollectorInterfaceFactory $messageCollectorFactory,
         private UrlPersistInterface $urlPersist
     ) {
         $this->responseStorage = $dataStorageFactory->create();
-        $this->messageStorage = $messageStorageFactory->create();
+        $this->messageCollector = $messageCollectorFactory->create();
     }
 
     /**
@@ -73,11 +73,11 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
     }
 
     /**
-     * @return MessageStorageInterface
+     * @return MessageCollectorInterface
      */
-    public function getMessageStorage(): MessageStorageInterface
+    public function getMessageCollector(): MessageCollectorInterface
     {
-        return $this->messageStorage;
+        return $this->messageCollector;
     }
 
     /**
@@ -98,24 +98,25 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
                 $category = $this->categoryRepository->get($entityId);
                 $this->generate($category);
                 $this->getResponseStorage()->addData($entityId);
-                $this->getMessageStorage()->addData(
+                $this->getMessageCollector()->addMessage(
+                    $entityId,
                     __(
                         'Url rewrites have been generated. [Category: %1, Store: %2]',
                         $entityId,
                         implode(', ', $category->getStoreIds() ?: '')
                     ),
-                    $entityId
+                    StatusInterface::SUCCESS
                 );
             } catch (\Exception $e) {
-                $this->getMessageStorage()->addData(
+                $this->getMessageCollector()->addMessage(
+                    $entityId,
                     __(
                         'Could not generate URL rewrites. [Category: %1, Store: %2, Error: %3]',
                         $entityId,
                         $category ? implode(', ', $category->getStoreIds() ?: '') : 0,
                         $e->getMessage()
                     ),
-                    $entityId,
-                    Status::ERROR
+                    StatusInterface::ERROR
                 );
             }
         }
@@ -127,7 +128,7 @@ class CategoryUrlRewriteGenerator implements UrlRewriteInterface
     private function initialize(): void
     {
         $this->responseStorage->resetData();
-        $this->messageStorage->resetData();
+        $this->messageCollector->reset();
     }
 
     /**

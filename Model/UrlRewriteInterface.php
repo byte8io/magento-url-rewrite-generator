@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Byte8\UrlRewriteGenerator\Model;
 
 use Byte8\Core\Framework\DataStorageInterface;
-use Byte8\Core\Framework\MessageStorageInterface;
+use Byte8\Core\Framework\MessageCollectorInterface;
 
 /**
  * Interface UrlRewriteInterface used to
@@ -23,9 +23,9 @@ interface UrlRewriteInterface
     public function getResponseStorage(): DataStorageInterface;
 
     /**
-     * @return MessageStorageInterface
+     * @return MessageCollectorInterface
      */
-    public function getMessageStorage(): MessageStorageInterface;
+    public function getMessageCollector(): MessageCollectorInterface;
 
     /**
      * @param array $entityIds
