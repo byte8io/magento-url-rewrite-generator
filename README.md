@@ -162,13 +162,3 @@ Byte8 Ltd — support@byte8.io
 Each source file in this package is licensed under OSL 3.0 / AFL 3.0 — see [`LICENSE.txt`](LICENSE.txt) for full details.
 
 [Open Software License (OSL 3.0)](https://opensource.org/licenses/osl-3.0.php)
-
-## Thanks for dropping by
-
-<p align="center">
-    <a href="https://byte8.io" target="_blank">
-        <img src="https://byte8.io/pub/media/banner/logo.svg" width="200" alt="Byte8 Ltd" />
-    </a>
-    <br />
-    <a href="https://byte8.io/" target="_blank">https://byte8.io/</a>
-</p>
